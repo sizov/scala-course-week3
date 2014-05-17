@@ -69,7 +69,7 @@ abstract class TweetSet {
    * Question: Should we implment this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def mostRetweeted: Tweet = ???
+  def mostRetweeted: Tweet
 
   /**
    * Returns a list containing all tweets of this set, sorted by retweet count
@@ -109,6 +109,8 @@ abstract class TweetSet {
    * This method takes a function and applies it to every element in the set.
    */
   def foreach(f: Tweet => Unit): Unit
+
+  def isEmpty: Boolean
 }
 
 class Empty extends TweetSet {
@@ -140,6 +142,21 @@ class Empty extends TweetSet {
   override def union(that: TweetSet): TweetSet = {
     that
   }
+
+  /**
+   * Returns the tweet from this set which has the greatest retweet count.
+   *
+   * Calling `mostRetweeted` on an empty set should throw an exception of
+   * type `java.util.NoSuchElementException`.
+   *
+   * Question: Should we implment this method here, or should it remain abstract
+   * and be implemented in the subclasses?
+   */
+  override def mostRetweeted: Tweet = {
+    throw new IndexOutOfBoundsException
+  }
+
+  override def isEmpty: Boolean = true
 }
 
 class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
@@ -171,8 +188,10 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
   }
 
   def remove(tw: Tweet): TweetSet = {
-    if (tw.text < elem.text) new NonEmpty(elem, left.remove(tw), right)
-    else if (elem.text < tw.text) new NonEmpty(elem, left, right.remove(tw))
+    if (tw.text < elem.text)
+      new NonEmpty(elem, left.remove(tw), right)
+    else if (elem.text < tw.text)
+      new NonEmpty(elem, left, right.remove(tw))
     else left.union(right)
   }
 
@@ -197,6 +216,37 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
     val withElemAndLeft = left.union(withElem)
     right.union(withElemAndLeft)
   }
+
+  /**
+   * Returns the tweet from this set which has the greatest retweet count.
+   *
+   * Calling `mostRetweeted` on an empty set should throw an exception of
+   * type `java.util.NoSuchElementException`.
+   *
+   * Question: Should we implement this method here, or should it remain abstract
+   * and be implemented in the subclasses?
+   */
+  override def mostRetweeted: Tweet = {
+    if (left.isEmpty && right.isEmpty)
+      elem
+    else if (!left.isEmpty && right.isEmpty)
+      withMoreRetweets(left.mostRetweeted, elem)
+    else if (left.isEmpty && !right.isEmpty)
+      withMoreRetweets(right.mostRetweeted, elem)
+    else {
+      val mostOfLeftRight = withMoreRetweets(left.mostRetweeted, right.mostRetweeted)
+      withMoreRetweets(mostOfLeftRight, elem)
+    }
+  }
+
+  def withMoreRetweets(a: Tweet, b: Tweet): Tweet = {
+    if (a.retweets > b.retweets)
+      a
+    else
+      b
+  }
+
+  override def isEmpty: Boolean = false
 }
 
 trait TweetList {

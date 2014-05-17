@@ -19,6 +19,13 @@ class TweetSetSuite extends FunSuite {
     val set5 = set4c.incl(d)
   }
 
+  trait TestSets1 {
+    val set1 = new Empty
+    val set2 = set1.incl(new Tweet("a", "a body", 20))
+    val set3 = set2.incl(new Tweet("b", "b body", 25))
+    val set4 = set3.incl(new Tweet("c", "c body", 3))
+  }
+
   def asSet(tweets: TweetSet): Set[Tweet] = {
     var res = Set[Tweet]()
     tweets.foreach(res += _)
@@ -68,12 +75,41 @@ class TweetSetSuite extends FunSuite {
       assert(size(set1.union(set5)) === 4)
     }
   }
-  //
-  //  test("descending: set5") {
-  //    new TestSets {
-  //      val trends = set5.descendingByRetweet
-  //      assert(!trends.isEmpty)
-  //      assert(trends.head.user == "a" || trends.head.user == "b")
-  //    }
-  //  }
+
+  test("most retweeted: (1)") {
+    new TestSets1 {
+      assert(set2.mostRetweeted.text === "a body")
+      assert(set2.mostRetweeted.user === "a")
+    }
+  }
+
+  test("most retweeted: (2)") {
+    new TestSets1 {
+      assert(set3.mostRetweeted.text === "b body")
+      assert(set3.mostRetweeted.user === "b")
+    }
+  }
+
+  test("most retweeted: (3)") {
+    new TestSets1 {
+      assert(set4.mostRetweeted.text === "b body")
+      assert(set4.mostRetweeted.user === "b")
+    }
+  }
+
+  test("most retweeted: calculating maxretweeted in Empty set should throw NoSuchElementException") {
+    new TestSets1 {
+      intercept[IndexOutOfBoundsException] {
+        set1.mostRetweeted.text
+      }
+    }
+  }
+
+//  test("descending: set5") {
+//    new TestSets {
+//      val trends = set5.descendingByRetweet
+//      assert(!trends.isEmpty)
+//      assert(trends.head.user == "a" || trends.head.user == "b")
+//    }
+//  }
 }
