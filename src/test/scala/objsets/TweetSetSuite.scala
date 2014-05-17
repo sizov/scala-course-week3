@@ -7,6 +7,7 @@ import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class TweetSetSuite extends FunSuite {
+
   trait TestSets {
     val set1 = new Empty
     val set2 = set1.incl(new Tweet("a", "a body", 20))
@@ -28,19 +29,25 @@ class TweetSetSuite extends FunSuite {
 
   test("filter: on empty set") {
     new TestSets {
-      assert(size(set1.filter(tw => tw.user == "a")) === 0)
+      private val filter: TweetSet = set1.filter(tw => tw.user == "a")
+      println(filter)
+      assert(size(filter) === 0)
     }
   }
 
   test("filter: a on set5") {
     new TestSets {
-      assert(size(set5.filter(tw => tw.user == "a")) === 1)
+      private val filter: TweetSet = set5.filter(tw => tw.user == "a")
+      println(filter)
+      assert(size(filter) === 1)
     }
   }
 
   test("filter: 20 on set5") {
     new TestSets {
-      assert(size(set5.filter(tw => tw.retweets == 20)) === 2)
+      private val filter: TweetSet = set5.filter(tw => tw.retweets == 20)
+      println(filter)
+      assert(size(filter) === 2)
     }
   }
 
@@ -61,12 +68,12 @@ class TweetSetSuite extends FunSuite {
       assert(size(set1.union(set5)) === 4)
     }
   }
-
-  test("descending: set5") {
-    new TestSets {
-      val trends = set5.descendingByRetweet
-      assert(!trends.isEmpty)
-      assert(trends.head.user == "a" || trends.head.user == "b")
-    }
-  }
+  //
+  //  test("descending: set5") {
+  //    new TestSets {
+  //      val trends = set5.descendingByRetweet
+  //      assert(!trends.isEmpty)
+  //      assert(trends.head.user == "a" || trends.head.user == "b")
+  //    }
+  //  }
 }
