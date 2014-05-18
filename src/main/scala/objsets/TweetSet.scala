@@ -36,6 +36,7 @@ class Tweet(val user: String, val text: String, val retweets: Int) {
  */
 abstract class TweetSet {
 
+
   /**
    * This method takes a predicate and returns a subset of all the elements
    * in the original set for which the predicate is true.
@@ -307,17 +308,33 @@ class Cons(val head: Tweet, val tail: TweetList) extends TweetList {
 
 
 object GoogleVsApple {
-  val google = List("android", "Android", "galaxy", "Galaxy", "nexus", "Nexus")
-  val apple = List("ios", "iOS", "iphone", "iPhone", "ipad", "iPad")
 
-  lazy val googleTweets: TweetSet = ???
-  lazy val appleTweets: TweetSet = ???
+  def stringHasOneOfKeys(string: String, keys: List[String]): Boolean = {
+    if (keys.isEmpty)
+      false
+    else if (string.contains(keys.head))
+      true
+    else
+      stringHasOneOfKeys(string, keys.tail)
+  }
+
+  val googleKeys = List("android", "Android", "galaxy", "Galaxy", "nexus", "Nexus")
+  val appleKeys = List("ios", "iOS", "iphone", "iPhone", "ipad", "iPad")
+  val tweetData = TweetReader.allTweets
+
+  lazy val googleTweets: TweetSet = tweetData.filter((tweet: Tweet) => {
+    stringHasOneOfKeys(tweet.text, googleKeys)
+  })
+
+  lazy val appleTweets: TweetSet = tweetData.filter((tweet: Tweet) => {
+    stringHasOneOfKeys(tweet.text, appleKeys)
+  })
 
   /**
    * A list of all tweets mentioning a keyword from either apple or google,
    * sorted by the number of retweets.
    */
-  lazy val trending: TweetList = ???
+  lazy val trending: TweetList = googleTweets.union(appleTweets).descendingByRetweet
 }
 
 object Main extends App {

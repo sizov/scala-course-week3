@@ -58,13 +58,13 @@ object TweetReader {
   private val sources = List(gizmodoTweets, techCrunchTweets, engadgetTweets, amazondealsTweets, cnetTweets, gadgetlabTweets, mashableTweets)
 
   val tweetMap: Map[String, List[Tweet]] =
-    Map() ++ Seq((sites(0) -> gizmodoTweets),
-      (sites(1) -> techCrunchTweets),
-      (sites(2) -> engadgetTweets),
-      (sites(3) -> amazondealsTweets),
-      (sites(4) -> cnetTweets),
-      (sites(5) -> gadgetlabTweets),
-      (sites(6) -> mashableTweets))
+    Map() ++ Seq(sites(0) -> gizmodoTweets,
+      sites(1) -> techCrunchTweets,
+      sites(2) -> engadgetTweets,
+      sites(3) -> amazondealsTweets,
+      sites(4) -> cnetTweets,
+      sites(5) -> gadgetlabTweets,
+      sites(6) -> mashableTweets)
 
   val tweetSets: List[TweetSet] = sources.map(tweets => toTweetSet(tweets))
 
