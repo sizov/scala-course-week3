@@ -71,6 +71,8 @@ abstract class TweetSet {
    */
   def mostRetweeted: Tweet
 
+  def lessRetweeted: Tweet
+
   /**
    * Returns a list containing all tweets of this set, sorted by retweet count
    * in descending order. In other words, the head of the resulting list should
@@ -80,7 +82,22 @@ abstract class TweetSet {
    * Question: Should we implment this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def descendingByRetweet: TweetList = ???
+  def descendingByRetweet: TweetList = {
+    accumulateForDescending(this, Nil)
+  }
+
+  def accumulateForDescending(set: TweetSet, list: TweetList): TweetList = {
+    val lessRetweeted = set.lessRetweeted
+    //todo : can mostRetw be Null?
+
+    val listWithLessRetweeted = new Cons(lessRetweeted, list)
+    val setWithoutLessRetweeted = set.remove(lessRetweeted)
+
+    if (setWithoutLessRetweeted.isEmpty)
+      listWithLessRetweeted
+    else
+      accumulateForDescending(setWithoutLessRetweeted, listWithLessRetweeted)
+  }
 
 
   /**
@@ -111,6 +128,8 @@ abstract class TweetSet {
   def foreach(f: Tweet => Unit): Unit
 
   def isEmpty: Boolean
+
+  def findOneUsingCompare(compare: (Tweet, Tweet) => Tweet): Tweet
 }
 
 class Empty extends TweetSet {
@@ -152,11 +171,13 @@ class Empty extends TweetSet {
    * Question: Should we implment this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  override def mostRetweeted: Tweet = {
-    throw new IndexOutOfBoundsException
-  }
+  override def mostRetweeted: Tweet = throw new IndexOutOfBoundsException
+
+  override def lessRetweeted: Tweet = throw new IndexOutOfBoundsException
 
   override def isEmpty: Boolean = true
+
+  override def findOneUsingCompare(compare: (Tweet, Tweet) => Tweet): Tweet = throw new IndexOutOfBoundsException
 }
 
 class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
@@ -202,7 +223,7 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
   }
 
   override def toString = {
-    s"${elem.retweets}-[${left.toString()},${right.toString()}]"
+    s"${elem.retweets}[${left.toString()},${right.toString()}]"
   }
 
   /**
@@ -227,26 +248,35 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
    * and be implemented in the subclasses?
    */
   override def mostRetweeted: Tweet = {
+    findOneUsingCompare((a: Tweet, b: Tweet) => {
+      if (a.retweets > b.retweets) a
+      else b
+    })
+  }
+
+  override def lessRetweeted: Tweet = {
+    findOneUsingCompare((a: Tweet, b: Tweet) => {
+      if (a.retweets < b.retweets) a
+      else b
+    })
+  }
+
+  def findOneUsingCompare(compare: (Tweet, Tweet) => Tweet): Tweet = {
     if (left.isEmpty && right.isEmpty)
       elem
     else if (!left.isEmpty && right.isEmpty)
-      withMoreRetweets(left.mostRetweeted, elem)
+      compare(left.findOneUsingCompare(compare), elem)
     else if (left.isEmpty && !right.isEmpty)
-      withMoreRetweets(right.mostRetweeted, elem)
+      compare(right.findOneUsingCompare(compare), elem)
     else {
-      val mostOfLeftRight = withMoreRetweets(left.mostRetweeted, right.mostRetweeted)
-      withMoreRetweets(mostOfLeftRight, elem)
+      val mostOfLeftRight = compare(left.findOneUsingCompare(compare), right.findOneUsingCompare(compare))
+      compare(mostOfLeftRight, elem)
     }
   }
 
-  def withMoreRetweets(a: Tweet, b: Tweet): Tweet = {
-    if (a.retweets > b.retweets)
-      a
-    else
-      b
-  }
-
   override def isEmpty: Boolean = false
+
+
 }
 
 trait TweetList {

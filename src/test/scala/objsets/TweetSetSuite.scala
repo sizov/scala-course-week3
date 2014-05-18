@@ -37,7 +37,6 @@ class TweetSetSuite extends FunSuite {
   test("filter: on empty set") {
     new TestSets {
       private val filter: TweetSet = set1.filter(tw => tw.user == "a")
-      println(filter)
       assert(size(filter) === 0)
     }
   }
@@ -45,7 +44,6 @@ class TweetSetSuite extends FunSuite {
   test("filter: a on set5") {
     new TestSets {
       private val filter: TweetSet = set5.filter(tw => tw.user == "a")
-      println(filter)
       assert(size(filter) === 1)
     }
   }
@@ -53,7 +51,6 @@ class TweetSetSuite extends FunSuite {
   test("filter: 20 on set5") {
     new TestSets {
       private val filter: TweetSet = set5.filter(tw => tw.retweets == 20)
-      println(filter)
       assert(size(filter) === 2)
     }
   }
@@ -105,11 +102,11 @@ class TweetSetSuite extends FunSuite {
     }
   }
 
-//  test("descending: set5") {
-//    new TestSets {
-//      val trends = set5.descendingByRetweet
-//      assert(!trends.isEmpty)
-//      assert(trends.head.user == "a" || trends.head.user == "b")
-//    }
-//  }
+  test("descending: set5") {
+    new TestSets {
+      val trends = set5.descendingByRetweet
+      assert(!trends.isEmpty)
+      assert(trends.head.user == "a" || trends.head.user == "b")
+    }
+  }
 }
